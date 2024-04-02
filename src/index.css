@@ -52,6 +52,7 @@ hr {
   left: 20%;
 }
 
+
 @media screen and (max-width: 600px) {
   .feed-box {
     left: 10%;

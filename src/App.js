@@ -4,7 +4,6 @@ import Feed from './pages/home/Feed';
 import Profile from './pages/home/Profile';
 import SignIn from './pages/sign-in/SignIn';
 import SignUp from './pages/sign-up/SignUp';
-import PrivateAuth from './services/utils/privateAuth';
 import PublicAuth from './services/utils/publicAuth';
 
 function App() {
@@ -35,11 +34,7 @@ function App() {
     },
     {
       path: '/home',
-      element: (
-        <PrivateAuth>
-          <Feed />
-        </PrivateAuth>
-      ),
+      element: <Feed />,
       children: [
         {
           path: 'profile',
