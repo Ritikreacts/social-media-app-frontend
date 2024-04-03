@@ -32,7 +32,7 @@ const Profile = () => {
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Typography variant="h5" align="center" gutterBottom>
-              User Profile
+              Profile
             </Typography>
           </Grid>
           <Grid item xs={6} align="right">

@@ -56,7 +56,7 @@ export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
             Are you sure you want to{' '}
-            <span className="error">Delete your account ?</span>
+            <span className="error">delete your account ?</span>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
