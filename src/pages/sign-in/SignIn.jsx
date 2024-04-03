@@ -51,7 +51,7 @@ export default function SignIn() {
             horizontal: 'right',
           },
         });
-        navigate('home');
+        navigate('home/feed');
       } else {
         enqueueSnackbar(response.error.data.message, {
           variant: 'error',

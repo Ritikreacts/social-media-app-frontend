@@ -1,6 +1,7 @@
 import { useRoutes } from 'react-router-dom';
 
 import Feed from './pages/home/Feed';
+import Home from './pages/home/Home';
 import Profile from './pages/home/Profile';
 import SignIn from './pages/sign-in/SignIn';
 import SignUp from './pages/sign-up/SignUp';
@@ -37,13 +38,17 @@ function App() {
       path: '/home',
       element: (
         <PrivateAuth>
-          <Feed />
+          <Home />
         </PrivateAuth>
       ),
       children: [
         {
           path: 'profile',
           element: <Profile />,
+        },
+        {
+          path: 'feed',
+          element: <Feed />,
         },
       ],
     },

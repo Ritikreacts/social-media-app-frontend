@@ -6,7 +6,6 @@ const baseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:5000/',
   prepareHeaders: (headers) => {
     const token = getCookie();
-
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }

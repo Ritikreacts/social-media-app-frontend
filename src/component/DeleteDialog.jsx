@@ -11,17 +11,15 @@ import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
-import { clearCookie } from './../services/cookieManager';
 import AuthContext from '../context/AuthContext';
+import { clearCookie } from '../services/cookieManager';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
+export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
   const state = React.useContext(AuthContext);
-  console.log(typeof dialogOpen);
-  console.log(typeof setDialogOpen);
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const handleClose = () => {
@@ -29,7 +27,7 @@ export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
   };
   const logOut = () => {
     setDialogOpen(false);
-    enqueueSnackbar('Logged out successfully!', {
+    enqueueSnackbar('Account deleted successfully!', {
       variant: 'success',
       autoHideDuration: 1500,
       anchorOrigin: {
@@ -51,10 +49,11 @@ export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
         onClose={handleClose}
         aria-describedby="alert-dialog-slide-description"
       >
-        <DialogTitle>Log out</DialogTitle>
+        <DialogTitle>Dangerous operation</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            Are you sure you want to log out?
+            Are you sure you want to{' '}
+            <span className="error">Delete your account ?</span>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -65,7 +64,7 @@ export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
     </React.Fragment>
   );
 }
-AlertDialogSlide.propTypes = {
+DeleteDialog.propTypes = {
   dialogOpen: PropTypes.bool.isRequired,
   setDialogOpen: PropTypes.func.isRequired,
 };

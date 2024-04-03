@@ -1,9 +1,18 @@
-import * as React from 'react';
+import React, { useRef, useState } from 'react';
 
-import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
-import Typography from '@mui/material/Typography';
+import {
+  Box,
+  Modal,
+  Typography,
+  TextField,
+  Button,
+  Avatar,
+} from '@mui/material';
+import { enqueueSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
+import { useForm } from 'react-hook-form';
+
+import { useCreatePostMutation } from '../api/action-apis/postApi';
 
 const style = {
   position: 'absolute',
@@ -15,11 +24,64 @@ const style = {
   border: '2px solid #000',
   boxShadow: 100,
   p: 4,
+  textAlign: 'center',
+  cursor: 'pointer',
 };
 
-export default function CreatePost({ openProfile, setOpenProfile }) {
-  console.log('hello from Create Post');
+const CreatePost = ({ openProfile, setOpenProfile }) => {
+  const [createPost] = useCreatePostMutation();
+  const [image, setImage] = useState('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const fileInputRef = useRef();
+
   const handleClose = () => setOpenProfile(false);
+
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+    console.log(file);
+    setImage(file);
+  }
+  const onSubmit = async (data) => {
+    data.image = image;
+    const postDetails = {
+      ...data,
+      isPrivate: false,
+    };
+    setOpenProfile(false);
+
+    try {
+      const response = await createPost(postDetails);
+      if (response?.data) {
+        enqueueSnackbar('Post created successfully!', {
+          variant: 'success',
+          autoHideDuration: 1500,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          },
+        });
+      } else {
+        enqueueSnackbar(response.error.data.message, {
+          variant: 'error',
+          autoHideDuration: 1500,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'right',
+          },
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <Modal
@@ -32,18 +94,94 @@ export default function CreatePost({ openProfile, setOpenProfile }) {
           <Typography id="modal-modal-title" variant="h6" component="h2">
             Create post
           </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero at
-            placeat aspernatur unde veniam labore accusantium rerum, explicabo
-            ex nemo voluptates quo dolores nisi, laboriosam dolore culpa debitis
-            porro veritatis.
-          </Typography>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <input
+              {...register('image', {
+                validate: (value) => {
+                  if (!image) {
+                    console.log('in error', value);
+                    return 'Image is required to create post';
+                  } else {
+                    return true;
+                  }
+                },
+              })}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={(e) => handleImageChange(e)}
+            />
+            <div onClick={handleImageClick} style={{ marginBottom: 20 }}>
+              <Avatar
+                className="avatar-upload"
+                variant="rounded"
+                src={image ? URL.createObjectURL(image) : ''}
+                style={{
+                  width: 300,
+                  height: 200,
+                  cursor: 'pointer',
+                  margin: 'auto',
+                }}
+              >
+                Add Photo
+              </Avatar>
+              {errors.image && !image && (
+                <div className="error">{errors.image.message}</div>
+              )}
+            </div>
+            <TextField
+              {...register('title', {
+                required: 'Title is required',
+              })}
+              label="Title"
+              fullWidth
+              margin="normal"
+            />
+            {errors.title && (
+              <div className="error">{errors.title.message}</div>
+            )}
+            <TextField
+              {...register('description', {
+                required: 'Description is required',
+              })}
+              label="Description"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={2}
+            />
+            {errors.description && (
+              <div className="error">{errors.description.message}</div>
+            )}
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              style={{ marginRight: 10, marginTop: 10 }}
+              className="color-green"
+            >
+              Submit
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleClose}
+              className="color-red"
+              style={{ marginTop: 10 }}
+            >
+              Back
+            </Button>
+          </form>
         </Box>
       </Modal>
     </div>
   );
-}
+};
+
 CreatePost.propTypes = {
   openProfile: PropTypes.bool.isRequired,
   setOpenProfile: PropTypes.func.isRequired,
 };
+
+export default CreatePost;
