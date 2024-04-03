@@ -11,6 +11,7 @@ import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
+import { useDeleteUserMutation } from '../api/action-apis/userApi';
 import AuthContext from '../context/AuthContext';
 import { clearCookie } from '../services/cookieManager';
 
@@ -19,6 +20,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
+  const [deleteUser] = useDeleteUserMutation();
   const state = React.useContext(AuthContext);
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -27,6 +29,7 @@ export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
   };
   const logOut = () => {
     setDialogOpen(false);
+    deleteUser();
     enqueueSnackbar('Account deleted successfully!', {
       variant: 'success',
       autoHideDuration: 1500,
