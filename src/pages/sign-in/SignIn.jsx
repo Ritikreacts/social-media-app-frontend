@@ -22,7 +22,6 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
   const state = React.useContext(AuthContext);
-  // const state = useContext(AuthContext);
   const isLoggedIn = state.activeUserId;
   console.log(isLoggedIn);
   const { enqueueSnackbar } = useSnackbar();

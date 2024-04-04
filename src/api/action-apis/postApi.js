@@ -3,9 +3,9 @@ import { rootApi } from './rootApi';
 const postApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
     fetchAllPosts: builder.query({
-      query: () => {
+      query: (page) => {
         return {
-          url: '/posts/get-feed-posts?page=1&perPage=20&search&isMyPostsOnly&isPrivate',
+          url: `/posts/get-feed-posts?page=${page}`,
           method: 'GET',
         };
       },
@@ -17,7 +17,6 @@ const postApi = rootApi.injectEndpoints({
         for (const key in data) {
           formData.append(key, data[key]);
         }
-
         return {
           url: '/posts/create-post',
           method: 'POST',
@@ -40,7 +39,6 @@ const postApi = rootApi.injectEndpoints({
 
 export const {
   useFetchAllPostsQuery,
-  useLazyFetchAllPostsQuery,
   useCreatePostMutation,
   useFetchPostImgQuery,
 } = postApi;

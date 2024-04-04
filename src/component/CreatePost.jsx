@@ -48,10 +48,10 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
     console.log(file);
     setImage(file);
   }
-  const onSubmit = async (data) => {
-    data.image = image;
+  const onSubmit = async (postData) => {
     const postDetails = {
-      ...data,
+      ...postData,
+      image,
       isPrivate: false,
     };
     setOpenProfile(false);

@@ -2,7 +2,7 @@
   "env": {
     "es6": true,
     "browser": true,
-    "node": true
+    "node": true,
   },
   "extends": [
     "plugin:prettier/recommended",
@@ -11,14 +11,14 @@
     "eslint:recommended",
     "plugin:import/recommended",
     "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
   ],
   "parserOptions": {
     "ecmaVersion": 2021,
     "sourceType": "module",
     "ecmaFeatures": {
-      "jsx": true
-    }
+      "jsx": true,
+    },
   },
   "plugins": ["react", "import", "react-hooks", "prettier", "check-file"],
   "rules": {
@@ -26,8 +26,8 @@
       "error",
       {
         "*.test.{js,jsx,ts,tsx}": "**/__tests__/",
-        "*.styled.{jsx,tsx}": "**/pages/"
-      }
+        "*.styled.{jsx,tsx}": "**/pages/",
+      },
     ],
     "check-file/filename-naming-convention": [
       "error",
@@ -38,14 +38,14 @@
         "src/components/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
         "src/context/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
         "src/layouts/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
-        "src/pages/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE"
-      }
+        "src/pages/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
+      },
     ],
     "check-file/folder-naming-convention": [
       "error",
       {
-        "src/**/": "KEBAB_CASE"
-      }
+        "src/**/": "KEBAB_CASE",
+      },
     ],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -61,27 +61,27 @@
           {
             "pattern": "react",
             "group": "external",
-            "position": "before"
-          }
+            "position": "before",
+          },
         ],
         "pathGroupsExcludedImportTypes": ["react"],
         "newlines-between": "always",
         "alphabetize": {
           "order": "asc",
-          "caseInsensitive": true
-        }
-      }
-    ]
+          "caseInsensitive": true,
+        },
+      },
+    ],
   },
   "settings": {
     "react": {
-      "version": "detect"
+      "version": "detect",
     },
     "import/resolver": {
       "node": {
         "paths": ["src"],
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
-      }
-    }
-  }
+        "extensions": [".js", ".jsx", ".ts", ".tsx"],
+      },
+    },
+  },
 }
