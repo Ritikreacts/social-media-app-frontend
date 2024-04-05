@@ -7,6 +7,7 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';
@@ -17,7 +18,7 @@ import { useFetchAllPostsQuery } from '../api/action-apis/postApi';
 const Posts = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useFetchAllPostsQuery(page);
+  const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
   useEffect(() => {
     if (!isLoading && data) {
       setPosts((prevPosts) => [...prevPosts, ...data.data.data]);
@@ -52,18 +53,30 @@ const Posts = () => {
     const formattedDate = dateObject.toLocaleString();
     return formattedDate;
   }
+  // const sortedPosts = useMemo(() => {
+  //   return posts
+  //     .slice()
+  //     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // }, [posts]);
 
+  if (isLoading || (isFetching && page === 0)) {
+    return (
+      <div className="outlet-box card">
+        <CircularProgress />
+      </div>
+    );
+  }
   if (!posts || posts.length === 0) {
-    return <h1 className="no-data">No post to show</h1>;
+    return <div className="outlet-box card">No post to show</div>;
   }
 
   return (
     <div className="outlet-box card">
       {posts
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .map((post, index) => (
+        .map((post) => (
           <Card
-            key={index}
+            key={post._id}
             sx={{ maxWidth: 445, minWidth: 300 }}
             className="card-box"
           >
@@ -84,10 +97,17 @@ const Posts = () => {
             </CardContent>
           </Card>
         ))}
-      {isLoading && <div>Loading...</div>}
+      {!isLoading && data && data.data.data.length !== 0 && (
+        <CircularProgress />
+      )}
       {!isLoading && data && data.data.data.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          No more data to load
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          className="no-more
+        "
+        >
+          You are all done!
         </Typography>
       )}
     </div>

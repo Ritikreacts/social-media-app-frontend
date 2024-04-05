@@ -1,7 +1,9 @@
 ::-webkit-scrollbar {
   width: 0px;
 }
-
+* {
+  scroll-behavior: smooth !important;
+}
 .lock-icon {
   background-color: rgb(0, 0, 0) !important;
 }
@@ -98,6 +100,26 @@ hr {
 }
 .card-box {
   width: 400px !important;
+}
+.loader {
+  position: absolute !important;
+  top: 30%;
+  left: 30%;
+}
+.image-loader {
+  padding: 30px !important;
+}
+.edit-model {
+  width: 500px !important;
+}
+.no-more {
+  border: 1px solid rgb(56, 55, 55);
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 600 !important;
+  color: white !important;
+  font-size: 15px !important;
+  background-color: #35374b;
 }
 
 @media screen and (max-width: 600px) {

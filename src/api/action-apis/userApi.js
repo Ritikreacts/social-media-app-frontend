@@ -2,18 +2,8 @@ import { rootApi } from './rootApi';
 
 const userApi = rootApi.injectEndpoints({
   endpoints: (builder) => ({
-    fetchAllUsers: builder.query({
-      query: () => '/users/get-all-user',
-      providesTags: ['User'],
-    }),
-
     fetchUser: builder.query({
       query: () => '/users/get-user',
-      providesTags: ['User'],
-    }),
-
-    fetchUserProfile: builder.query({
-      query: () => '/users/get-users-profile?userId=65cf537bf83758987bb148df',
       providesTags: ['User'],
     }),
 
@@ -37,9 +27,7 @@ const userApi = rootApi.injectEndpoints({
 });
 
 export const {
-  useFetchAllUsersQuery,
   useFetchUserQuery,
-  useFetchUserProfileQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
 } = userApi;

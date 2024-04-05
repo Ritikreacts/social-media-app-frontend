@@ -11,6 +11,7 @@ import {
 import { enqueueSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 import { useCreatePostMutation } from '../api/action-apis/postApi';
 
@@ -29,6 +30,7 @@ const style = {
 };
 
 const CreatePost = ({ openProfile, setOpenProfile }) => {
+  const navigate = useNavigate();
   const [createPost] = useCreatePostMutation();
   const [image, setImage] = useState('');
   const {
@@ -67,6 +69,7 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
             horizontal: 'right',
           },
         });
+        navigate('/home/feed');
       } else {
         enqueueSnackbar(response.error.data.message, {
           variant: 'error',

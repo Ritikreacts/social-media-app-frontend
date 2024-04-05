@@ -10,17 +10,14 @@ const authApi = rootApi.injectEndpoints({
           body: user,
         };
       },
-      invalidatesTags: ['User'],
     }),
 
-    SignIn: builder.mutation({
+    signIn: builder.mutation({
       query: (user) => ({
         url: '/login',
         method: 'POST',
         body: user,
       }),
-
-      invalidatesTags: ['User'],
     }),
   }),
 });

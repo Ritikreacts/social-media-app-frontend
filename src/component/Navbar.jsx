@@ -95,7 +95,14 @@ function MainNavbar() {
               component="div"
               className="Postgram"
             >
-              <Link to="/home/feed">𝙋𝙤𝙨𝙩𝙜𝙧𝙖𝙢</Link>
+              <Link
+                to={{
+                  pathname: '/home/feed',
+                  state: true,
+                }}
+              >
+                𝙋𝙤𝙨𝙩𝙜𝙧𝙖𝙢
+              </Link>
             </Typography>
           </Toolbar>
         </AppBar>
