@@ -31,7 +31,7 @@ const style = {
 
 const CreatePost = ({ openProfile, setOpenProfile }) => {
   const navigate = useNavigate();
-  const [createPost] = useCreatePostMutation();
+  const [createPost, { isLoading }] = useCreatePostMutation();
   const [image, setImage] = useState('');
   const {
     register,
@@ -47,7 +47,7 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
   };
   function handleImageChange(e) {
     const file = e.target.files[0];
-    console.log(file);
+
     setImage(file);
   }
   const onSubmit = async (postData) => {
@@ -56,11 +56,11 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
       image,
       isPrivate: false,
     };
-    setOpenProfile(false);
 
     try {
       const response = await createPost(postDetails);
       if (response?.data) {
+        setOpenProfile(false);
         enqueueSnackbar('Post created successfully!', {
           variant: 'success',
           autoHideDuration: 1500,
@@ -100,9 +100,8 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <input
               {...register('image', {
-                validate: (value) => {
+                validate: () => {
                   if (!image) {
-                    console.log('in error', value);
                     return 'Image is required to create post';
                   } else {
                     return true;
@@ -163,8 +162,9 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
               color="primary"
               style={{ marginRight: 10, marginTop: 10 }}
               className="color-green"
+              disabled={isLoading}
             >
-              Submit
+              {isLoading ? 'Adding...' : 'Add post'}
             </Button>
             <Button
               variant="contained"
@@ -172,6 +172,7 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
               onClick={handleClose}
               className="color-red"
               style={{ marginTop: 10 }}
+              disabled={isLoading}
             >
               Back
             </Button>

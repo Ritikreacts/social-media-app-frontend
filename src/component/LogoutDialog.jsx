@@ -11,7 +11,7 @@ import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 
-import AuthContext from '../context/AuthContext';
+import AuthContext from '../context/auth/AuthContext';
 import { clearCookie } from '../services/cookieManager';
 
 const Transition = React.forwardRef(function Transition(props, ref) {

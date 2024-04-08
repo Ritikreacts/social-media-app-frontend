@@ -2,7 +2,13 @@ import React from 'react';
 
 import { ArrowBack, Edit } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Typography, Grid, Paper, Button } from '@mui/material';
+import {
+  Typography,
+  Grid,
+  Paper,
+  Button,
+  CircularProgress,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 import EditProfileModel from './../../component/EditProfileModel';
@@ -25,6 +31,13 @@ const Profile = () => {
   const handleEditClick = () => {
     setIsModalOpen(true);
   };
+  if (isLoading) {
+    return (
+      <div className="outlet-box profile-loader">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <div className="outlet-box" style={{ padding: 20 }}>

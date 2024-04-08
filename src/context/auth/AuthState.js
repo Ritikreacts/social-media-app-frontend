@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import AuthContext from './AuthContext';
-import { getCookie } from '../services/cookieManager';
+import { getCookie } from '../../services/cookieManager';
 
 const AuthState = (props) => {
   const [activeUserId, setActiveUserId] = useState(getCookie);

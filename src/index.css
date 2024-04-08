@@ -121,6 +121,11 @@ hr {
   font-size: 15px !important;
   background-color: #35374b;
 }
+.profile-loader {
+  position: absolute;
+  left: 50% !important;
+  top: 30% !important;
+}
 
 @media screen and (max-width: 600px) {
   .outlet-box {

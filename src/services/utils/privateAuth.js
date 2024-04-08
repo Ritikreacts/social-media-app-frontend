@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 
-import AuthContext from './../../context/AuthContext';
+import AuthContext from './../../context/auth/AuthContext';
 
 const PrivateAuth = ({ children }) => {
   const state = useContext(AuthContext);

@@ -14,13 +14,11 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useSignInMutation } from '../../api/action-apis/authApi';
-import AuthContext from '../../context/AuthContext';
+import AuthContext from '../../context/auth/AuthContext';
 import { setCookie } from '../../services/cookieManager';
 
 export default function SignIn() {
   const state = React.useContext(AuthContext);
-  const isLoggedIn = state.activeUserId;
-  console.log(isLoggedIn);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const [signIn, { isLoading }] = useSignInMutation();
@@ -38,7 +36,6 @@ export default function SignIn() {
         const accessToken = response.data.data.accessToken;
         setCookie(accessToken);
         state.setActiveUserId(accessToken);
-        console.log(response.data);
         enqueueSnackbar('You have successfully signed in', {
           variant: 'success',
           autoHideDuration: 1500,

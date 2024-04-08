@@ -9,7 +9,7 @@ const postApi = rootApi.injectEndpoints({
           method: 'GET',
         };
       },
-      providesTags: ['Post'],
+      // providesTags: ['Post'],
     }),
     createPost: builder.mutation({
       query: (data) => {
@@ -23,7 +23,7 @@ const postApi = rootApi.injectEndpoints({
           body: formData,
         };
       },
-      invalidatesTags: ['Post'],
+      // invalidatesTags: ['Post'],
     }),
     fetchPostImg: builder.query({
       query: (postId) => {
@@ -32,7 +32,7 @@ const postApi = rootApi.injectEndpoints({
           method: 'GET',
         };
       },
-      invalidatesTags: ['Post'],
+      // invalidatesTags: ['Post'],
     }),
   }),
 });

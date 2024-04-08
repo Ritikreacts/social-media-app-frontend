@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useContext, useEffect, useState } from 'react';
 
 import {
   Avatar,
@@ -14,16 +15,29 @@ import PropTypes from 'prop-types';
 
 import PostImage from './PostImage';
 import { useFetchAllPostsQuery } from '../api/action-apis/postApi';
+import SocketContext from '../context/socket/SocketContext';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
+  const [postIds, setPostIds] = useState(new Set());
   const [page, setPage] = useState(1);
   const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
+  const newPost = useContext(SocketContext);
+
   useEffect(() => {
     if (!isLoading && data) {
-      setPosts((prevPosts) => [...prevPosts, ...data.data.data]);
+      const newData = newPost ? [newPost, ...data.data.data] : data.data.data;
+      const filteredData = newData.filter((post) => !postIds.has(post._id));
+      const uniquePostIds = new Set([
+        ...filteredData.map((post) => post._id),
+        ...postIds,
+      ]);
+
+      setPosts((prevPosts) => [...filteredData, ...prevPosts]);
+      setPostIds(uniquePostIds);
     }
-  }, [data, isLoading]);
+  }, [data, isLoading, newPost]);
+
   useEffect(() => {
     const handleScroll = () => {
       const windowHeight = window.innerHeight;
@@ -36,7 +50,6 @@ const Posts = () => {
             0);
 
       if (windowHeight + scrollTop >= documentHeight) {
-        console.log('hit');
         setPage((prevPage) => prevPage + 1);
       }
     };
@@ -53,11 +66,6 @@ const Posts = () => {
     const formattedDate = dateObject.toLocaleString();
     return formattedDate;
   }
-  // const sortedPosts = useMemo(() => {
-  //   return posts
-  //     .slice()
-  //     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  // }, [posts]);
 
   if (isLoading || (isFetching && page === 0)) {
     return (
@@ -84,7 +92,7 @@ const Posts = () => {
               avatar={
                 <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src="" />
               }
-              title={post.userData.username}
+              title={post?.userData?.username}
               subheader={changeDateFormat(post.createdAt)}
             />
             <Typography variant="body2" color="text.secondary"></Typography>
@@ -97,16 +105,9 @@ const Posts = () => {
             </CardContent>
           </Card>
         ))}
-      {!isLoading && data && data.data.data.length !== 0 && (
-        <CircularProgress />
-      )}
+      {!isLoading && data && data.data.data.length > 5 && <CircularProgress />}
       {!isLoading && data && data.data.data.length === 0 && (
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          className="no-more
-        "
-        >
+        <Typography variant="body2" color="text.secondary" className="no-more">
           You are all done!
         </Typography>
       )}
