@@ -9,20 +9,17 @@ import { BrowserRouter } from 'react-router-dom';
 import { store } from './api/store';
 import App from './App';
 import AuthState from './context/auth/AuthState';
-import SocketState from './context/socket/SocketState';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
       <AuthState>
-        <SocketState>
-          <SnackbarProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </SnackbarProvider>
-        </SocketState>
+        <SnackbarProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </SnackbarProvider>
       </AuthState>
     </Provider>
   </React.StrictMode>
