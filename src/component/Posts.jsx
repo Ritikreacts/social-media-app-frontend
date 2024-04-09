@@ -11,11 +11,10 @@ import {
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';
-import { io } from 'socket.io-client'; // Import io from socket.io-client
+import ScrollToTop from 'react-scroll-to-top';
 
 import PostImage from './PostImage';
 import { useFetchAllPostsQuery } from '../api/action-apis/postApi';
-import { getCookie } from '../services/cookieManager';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -23,27 +22,13 @@ const Posts = () => {
   const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
 
   useEffect(() => {
-    const socket = io('http://localhost:5000', {
-      extraHeaders: {
-        token: getCookie(),
-      },
-    });
-
-    socket.on('new-post', (newPost) => {
-      setPosts((prevPosts) => [newPost, ...prevPosts]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
     if (!isLoading && data) {
-      const newData = data.data.data;
-      setPosts((prevPosts) => [...prevPosts, ...newData]);
+      const newData = data.data.data.filter(
+        (newPost) => !posts.some((post) => post._id === newPost._id)
+      );
+      setPosts((prevPosts) => [...newData, ...prevPosts]);
     }
-  }, [data, isLoading]);
+  }, [data, isLoading, posts]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +72,7 @@ const Posts = () => {
 
   return (
     <div className="outlet-box card">
+      <ScrollToTop smooth />
       {posts.map((post) => (
         <Card
           key={post._id}
@@ -97,20 +83,19 @@ const Posts = () => {
             avatar={
               <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src="" />
             }
-            title={post?.userData?.username}
+            title={post.userData?.username || post.userId?.username}
             subheader={changeDateFormat(post.createdAt)}
           />
-          <Typography variant="body2" color="text.secondary"></Typography>
           <PostImage postIdProp={post._id} />
           <CardContent>
             <CardActions disableSpacing></CardActions>
             <Typography variant="body2" color="text.secondary">
-              {post.description}{' '}
+              {post?.description}
             </Typography>
           </CardContent>
         </Card>
       ))}
-      {!isLoading && data && data.data.data.length > 5 && <CircularProgress />}
+      {!isLoading && data && data.data.data.length > 1 && <CircularProgress />}
       {!isLoading && data && data.data.data.length === 0 && (
         <Typography variant="body2" color="text.secondary" className="no-more">
           You are all done!

@@ -17,6 +17,7 @@ const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
 
   const {
     register,
+    clearErrors,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -29,6 +30,7 @@ const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
   });
 
   const handleCancelClick = () => {
+    clearErrors();
     setIsModalOpenProp(false);
   };
 

@@ -61,7 +61,7 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
       const response = await createPost(postDetails);
       if (response?.data) {
         setOpenProfile(false);
-        enqueueSnackbar('Post created successfully!', {
+        enqueueSnackbar('Uploaded!', {
           variant: 'success',
           autoHideDuration: 1500,
           anchorOrigin: {
