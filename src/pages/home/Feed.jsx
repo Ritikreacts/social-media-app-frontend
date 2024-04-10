@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -12,30 +13,23 @@ import {
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';
 import ScrollToTop from 'react-scroll-to-top';
+import { FixedSizeList as List } from 'react-window';
 
 import { useFetchAllPostsQuery } from '../../api/action-apis/postApi';
 import PostImage from '../../component/PostImage';
 
 const Feed = () => {
-  const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [, setAllCaughtUp] = useState(false);
   const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
 
-  useEffect(() => {
-    if (!isLoading && data) {
-      setPosts((prevPosts) => {
-        const newData = data.data.data.filter(
-          (newPost) => !prevPosts.some((post) => post._id === newPost._id)
-        );
-        return [...newData, ...prevPosts];
-      });
+  const posts = data?.data?.data || [];
 
-      if (data.data.data.length === 0) {
-        setAllCaughtUp(true);
-      }
+  useEffect(() => {
+    if (data?.data?.data?.length === 0) {
+      setAllCaughtUp(true);
     }
-  }, [data, isLoading]);
+  }, [data]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,9 +41,13 @@ const Feed = () => {
         document.body.scrollTop +
           ((document.documentElement && document.documentElement.scrollTop) ||
             0);
+      const distanceFromBottom = documentHeight - scrollTop - windowHeight;
+
+      // Adjust the threshold value as needed
+      const threshold = 200;
 
       if (
-        windowHeight + scrollTop >= documentHeight &&
+        distanceFromBottom < threshold &&
         !isFetching &&
         posts.length < data?.data?.total
       ) {
@@ -62,33 +60,30 @@ const Feed = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isFetching, data, posts]);
+  }, [isFetching, data, posts.length]);
 
   function changeDateFormat(dateString) {
     const dateObject = new Date(dateString);
     const formattedDate = dateObject.toLocaleString();
     return formattedDate;
   }
-  if (isLoading || (isFetching && page === 1)) {
+
+  const Row = ({ index, style }) => {
+    const post = posts[index];
+
+    if (!post) {
+      // Post is being loaded, render a placeholder
+      return <div style={style}>Loading...</div>;
+    }
+
     return (
-      <div className="outlet-box card">
-        <CircularProgress />
-      </div>
-    );
-  }
-
-  if (!posts || posts.length === 0) {
-    return <div className="outlet-box card">No post to show</div>;
-  }
-
-  return (
-    <div className="outlet-box card">
-      <ScrollToTop smooth />
-      {posts.map((post) => (
+      <div style={style}>
         <Card
-          key={post._id}
-          sx={{ maxWidth: 445, minWidth: 300 }}
-          className="card-box"
+          style={{
+            maxWidth: 445,
+            minWidth: 300,
+            marginBottom: 10, // Adjust as needed
+          }}
         >
           <CardHeader
             avatar={
@@ -105,7 +100,33 @@ const Feed = () => {
             </Typography>
           </CardContent>
         </Card>
-      ))}
+      </div>
+    );
+  };
+
+  if (isLoading || (isFetching && page === 1)) {
+    return (
+      <div className="outlet-box card">
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (!posts || posts.length === 0) {
+    return <div className="outlet-box card">No post to show</div>;
+  }
+
+  return (
+    <div className="outlet-box card">
+      <ScrollToTop smooth />
+      <List
+        height={window.innerHeight}
+        itemCount={posts.length}
+        itemSize={300} // Adjust as needed
+        width="100%"
+      >
+        {Row}
+      </List>
       {!isFetching && posts.length === data?.data?.total && (
         <Typography variant="body2" color="text.secondary" className="no-more">
           You are all caught up!
