@@ -29,7 +29,6 @@ export default function SignIn() {
   } = useForm();
 
   const onSubmit = async (dataToSend) => {
-    console.log(dataToSend);
     try {
       const response = await signIn(dataToSend);
       if (response?.data) {

@@ -27,7 +27,7 @@ export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
   const handleClose = () => {
     setDialogOpen(false);
   };
-  const logOut = () => {
+  const deleteUserAccount = () => {
     setDialogOpen(false);
     deleteUser();
     enqueueSnackbar('Account deleted successfully!', {
@@ -60,7 +60,7 @@ export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={logOut}>Yes</Button>
+          <Button onClick={deleteUserAccount}>Yes</Button>
           <Button onClick={handleClose}>No</Button>
         </DialogActions>
       </Dialog>

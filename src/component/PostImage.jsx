@@ -23,7 +23,7 @@ const PostImage = ({ postIdProp }) => {
         height="194"
         style={{ objectFit: 'contain' }}
         src={imageData ? imageData.imageData : null}
-        alt="Not available"
+        alt="user-image"
       />
     </>
   );

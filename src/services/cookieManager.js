@@ -1,7 +1,6 @@
-//save the user Token in cookie
 export const setCookie = (accessToken) => {
-  const isCookie = getCookie();
-  if (isCookie) {
+  const existingCookie = getCookie();
+  if (existingCookie) {
     clearCookie();
   }
   document.cookie = `token=${accessToken}`;

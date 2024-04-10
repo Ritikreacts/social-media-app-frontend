@@ -18,16 +18,15 @@ const postApi = rootApi.injectEndpoints({
           await cacheDataLoaded;
           const listener = (event) => {
             updateCachedData((draft) => {
-              console.log(draft.data.data);
               draft.data.data.unshift(event);
             });
           };
-          socket.addEventListener('new-post', listener);
+          socket?.addEventListener('new-post', listener);
         } catch (error) {
           console.log(error);
         }
         await cacheEntryRemoved;
-        // socket.close();
+        socket?.removeEventListener();
       },
     }),
     createPost: builder.mutation({

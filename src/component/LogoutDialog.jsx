@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 import AuthContext from '../context/auth/AuthContext';
 import { clearCookie } from '../services/cookieManager';
+import { disconnectFromSocket } from '../services/socket';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -36,6 +37,7 @@ export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
       },
     });
     state.setActiveUserId(null);
+    disconnectFromSocket();
     clearCookie();
     navigate('/');
   };
