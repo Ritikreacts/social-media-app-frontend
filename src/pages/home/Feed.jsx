@@ -19,6 +19,7 @@ import PostImage from '../../component/PostImage';
 const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
+  const [, setAllCaughtUp] = useState(false);
   const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
 
   useEffect(() => {
@@ -29,6 +30,10 @@ const Feed = () => {
         );
         return [...newData, ...prevPosts];
       });
+
+      if (data.data.data.length === 0) {
+        setAllCaughtUp(true);
+      }
     }
   }, [data, isLoading]);
 
@@ -43,7 +48,11 @@ const Feed = () => {
           ((document.documentElement && document.documentElement.scrollTop) ||
             0);
 
-      if (windowHeight + scrollTop >= documentHeight) {
+      if (
+        windowHeight + scrollTop >= documentHeight &&
+        !isFetching &&
+        posts.length < data?.data?.total
+      ) {
         setPage((prevPage) => prevPage + 1);
       }
     };
@@ -53,21 +62,21 @@ const Feed = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isFetching, data, posts]);
 
   function changeDateFormat(dateString) {
     const dateObject = new Date(dateString);
     const formattedDate = dateObject.toLocaleString();
     return formattedDate;
   }
-
-  if (isLoading || (isFetching && page === 0)) {
+  if (isLoading || (isFetching && page === 1)) {
     return (
       <div className="outlet-box card">
         <CircularProgress />
       </div>
     );
   }
+
   if (!posts || posts.length === 0) {
     return <div className="outlet-box card">No post to show</div>;
   }
@@ -97,12 +106,13 @@ const Feed = () => {
           </CardContent>
         </Card>
       ))}
-      {!isLoading && data?.data?.data?.length > 1 && <CircularProgress />}
-      {!isLoading && data?.data?.data?.length === 0 && (
+      {!isFetching && posts.length === data?.data?.total && (
         <Typography variant="body2" color="text.secondary" className="no-more">
-          You are all done!
+          You are all caught up!
         </Typography>
       )}
+
+      {isFetching && <CircularProgress />}
     </div>
   );
 };

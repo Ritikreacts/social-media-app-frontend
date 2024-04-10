@@ -9,7 +9,7 @@ import { connectToSocket } from '../socket';
 const PrivateAuth = ({ children }) => {
   const state = useContext(AuthContext);
   const isLoggedIn = state.activeUserId;
-  connectToSocket(isLoggedIn);
+  connectToSocket(isLoggedIn); //connected with web socket
   if (!isLoggedIn) {
     return <Navigate to="/" />;
   }
