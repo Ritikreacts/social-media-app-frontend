@@ -8,11 +8,11 @@ import {
   Button,
   Avatar,
 } from '@mui/material';
-import { enqueueSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
+import { useSnackbarUtils } from './Notify';
 import { useCreatePostMutation } from '../api/action-apis/postApi';
 
 const style = {
@@ -30,6 +30,8 @@ const style = {
 };
 
 const CreatePost = ({ openProfile, setOpenProfile }) => {
+  const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
+
   const navigate = useNavigate();
   const [createPost, { isLoading }] = useCreatePostMutation();
   const [image, setImage] = useState('');
@@ -61,24 +63,11 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
       const response = await createPost(postDetails);
       if (response?.data) {
         setOpenProfile(false);
-        enqueueSnackbar('Uploaded!', {
-          variant: 'success',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showSuccessSnackbar('New post added!');
+
         navigate('/home/feed');
       } else {
-        enqueueSnackbar(response.error.data.message, {
-          variant: 'error',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showErrorSnackbar(response.error.data.message);
       }
     } catch (error) {
       console.log(error);

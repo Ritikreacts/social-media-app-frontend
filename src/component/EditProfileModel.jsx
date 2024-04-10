@@ -1,16 +1,18 @@
 import React from 'react';
 
 import { Button, Modal, TextField, Typography } from '@mui/material';
-import { enqueueSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 
+import { useSnackbarUtils } from './Notify';
 import {
   useFetchUserQuery,
   useUpdateUserMutation,
 } from '../api/action-apis/userApi';
 
 const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
+  const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
+
   const [updateUser] = useUpdateUserMutation();
   const { data, isLoading, isSuccess } = useFetchUserQuery();
   const activeUserDetails = !isLoading && data?.data;
@@ -42,27 +44,13 @@ const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
     try {
       const response = await updateUser(updatedData);
       if (response?.data) {
-        enqueueSnackbar('Profile updated successfully!', {
-          variant: 'success',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showSuccessSnackbar('Profile updated successfully!');
 
         if (isSuccess) {
           setIsModalOpenProp(false);
         }
       } else {
-        enqueueSnackbar(response.error.data.message, {
-          variant: 'error',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showErrorSnackbar(response.error.data.message);
       }
     } catch (error) {
       console.log(error);

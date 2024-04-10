@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 
 import AuthContext from './../../context/auth/AuthContext';
-import { getCookie } from '../cookieManager';
 import { connectToSocket } from '../socket';
 
 const PrivateAuth = ({ children }) => {
   const state = useContext(AuthContext);
   const isLoggedIn = state.activeUserId;
-  connectToSocket(isLoggedIn ? isLoggedIn : getCookie());
+  connectToSocket(isLoggedIn);
   if (!isLoggedIn) {
     return <Navigate to="/" />;
   }

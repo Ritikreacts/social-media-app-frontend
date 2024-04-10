@@ -9,18 +9,18 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useSnackbar } from 'notistack';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useSignInMutation } from '../../api/action-apis/authApi';
+import { useSnackbarUtils } from '../../component/Notify';
 import AuthContext from '../../context/auth/AuthContext';
-import { setCookie } from '../../services/cookieManager';
 
 export default function SignIn() {
+  const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
+
   const state = React.useContext(AuthContext);
-  const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate();
+
   const [signIn, { isLoading }] = useSignInMutation();
   const {
     register,
@@ -33,26 +33,10 @@ export default function SignIn() {
       const response = await signIn(dataToSend);
       if (response?.data) {
         const accessToken = response.data.data.accessToken;
-        setCookie(accessToken);
-        state.setActiveUserId(accessToken);
-        enqueueSnackbar('You have successfully signed in', {
-          variant: 'success',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
-        navigate('home/feed');
+        state.handleLogIn(accessToken);
+        showSuccessSnackbar('You have successfully signed in');
       } else {
-        enqueueSnackbar(response.error.data.message, {
-          variant: 'error',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showErrorSnackbar(response.error.data.message);
       }
     } catch (error) {
       console.log(error);

@@ -9,14 +9,14 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { useSnackbar } from 'notistack';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useSignUpMutation } from '../../api/action-apis/authApi';
+import { useSnackbarUtils } from '../../component/Notify';
 
 export default function SignUp() {
-  const { enqueueSnackbar } = useSnackbar();
+  const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
   const navigate = useNavigate();
   const [signUp, { isLoading }] = useSignUpMutation();
   const {
@@ -32,24 +32,10 @@ export default function SignUp() {
     try {
       const response = await signUp(dataToSend);
       if (response?.data) {
-        enqueueSnackbar(response.data.message, {
-          variant: 'success',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showSuccessSnackbar(response.data.message);
         navigate('sign-in');
       } else {
-        enqueueSnackbar(response.error.data.message, {
-          variant: 'error',
-          autoHideDuration: 1500,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'right',
-          },
-        });
+        showErrorSnackbar(response.error.data.message);
       }
     } catch (error) {
       console.log(error);

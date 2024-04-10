@@ -9,11 +9,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
 import AuthContext from '../context/auth/AuthContext';
-import { clearCookie } from '../services/cookieManager';
-import { disconnectFromSocket } from '../services/socket';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -21,7 +18,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
   const state = React.useContext(AuthContext);
-  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const handleClose = () => {
     setDialogOpen(false);
@@ -36,10 +32,7 @@ export default function AlertDialogSlide({ dialogOpen, setDialogOpen }) {
         horizontal: 'right',
       },
     });
-    state.setActiveUserId(null);
-    disconnectFromSocket();
-    clearCookie();
-    navigate('/');
+    state.handleLogOut();
   };
 
   return (

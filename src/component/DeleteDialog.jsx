@@ -7,40 +7,30 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
-import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
 
+import { useSnackbarUtils } from './Notify';
 import { useDeleteUserMutation } from '../api/action-apis/userApi';
 import AuthContext from '../context/auth/AuthContext';
-import { clearCookie } from '../services/cookieManager';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 export default function DeleteDialog({ dialogOpen, setDialogOpen }) {
+  const { showSuccessSnackbar } = useSnackbarUtils();
+
   const [deleteUser] = useDeleteUserMutation();
   const state = React.useContext(AuthContext);
-  const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
+
   const handleClose = () => {
     setDialogOpen(false);
   };
   const deleteUserAccount = () => {
     setDialogOpen(false);
     deleteUser();
-    enqueueSnackbar('Account deleted successfully!', {
-      variant: 'success',
-      autoHideDuration: 1500,
-      anchorOrigin: {
-        vertical: 'top',
-        horizontal: 'right',
-      },
-    });
-    state.setActiveUserId(null);
-    clearCookie();
-    navigate('/');
+    showSuccessSnackbar('Account deleted successfully!');
+    state.handleLogOut();
   };
 
   return (
