@@ -1,6 +1,6 @@
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 0px;
-}
+} */
 * {
   scroll-behavior: smooth !important;
 }
@@ -34,8 +34,6 @@ hr {
 }
 .action-options li {
   display: flex !important;
-  /* justify-content: center; */
-  /* gap: 10px; */
   flex-direction: column;
   align-items: center;
   cursor: pointer;
@@ -46,20 +44,10 @@ hr {
 .navbar {
   background-color: #35374b;
 }
-.side-bar {
-  background-color: #e6e6e6;
 
-  height: 100%;
-}
 .action-options li:hover {
   background-color: #35374b;
   color: white;
-}
-.outlet-box {
-  padding: 10px;
-  position: absolute !important;
-  top: 10%;
-  left: 20%;
 }
 
 .color-red {
@@ -68,22 +56,6 @@ hr {
 .color-green {
   background-color: green !important;
 }
-.outlet-box h6 {
-  max-width: 200px;
-  text-align: left;
-  padding-left: 40px;
-}
-
-.card {
-  width: 70% !important;
-  /* height: 80%; */
-  display: flex !important;
-  flex-direction: column;
-  /* justify-content: center; */
-  gap: 10px;
-  align-items: center;
-}
-
 .card-image img {
   object-fit: contain !important;
 }
@@ -98,17 +70,7 @@ hr {
   margin-top: 10%;
   margin-left: 50% !important;
 }
-.card-box {
-  width: 400px !important;
-}
-.loader {
-  position: absolute !important;
-  top: 30%;
-  left: 30%;
-}
-.image-loader {
-  padding: 30px !important;
-}
+
 .edit-model {
   width: 500px !important;
 }
@@ -121,27 +83,26 @@ hr {
   font-size: 15px !important;
   background-color: #35374b;
 }
-.profile-loader {
-  position: absolute;
-  left: 50% !important;
-  top: 30% !important;
+.container {
+  height: 100% !important;
+  width: 100% !important;
+  overflow-x: hidden;
+  /* overflow: scroll; */
 }
-
-@media screen and (max-width: 600px) {
-  .outlet-box {
-    left: 10%;
-  }
-  .card-box {
-    width: 80px !important;
-  }
+.sub-container {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  width: 100% !important;
+  gap: 20px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  /* overflow-x: hidden; */
+  /* overflow: scroll; */
 }
-@media screen and (max-width: 1200px) and (min-width: 1024px) {
-  .outlet-box {
-    left: 25%;
-  }
-}
-@media screen and (max-width: 1024px) and (min-width: 600px) {
-  .outlet-box {
-    left: 30%;
-  }
+.list {
+  margin-top: 10% !important;
+  left: 30%;
+  width: 100% !important;
+  /* height: 500px !important; */
 }

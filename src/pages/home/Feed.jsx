@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react/prop-types */
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   Avatar,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
   CircularProgress,
@@ -11,15 +11,17 @@ import {
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';
-import ScrollToTop from 'react-scroll-to-top';
+import { VariableSizeList } from 'react-window';
 
 import { useFetchAllPostsQuery } from '../../api/action-apis/postApi';
 import PostImage from '../../component/PostImage';
+import { changeDateFormat } from '../../services/changeDateFormate'; // Fixed typo here
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
+  console.log(posts);
   const [page, setPage] = useState(1);
-  const [, setAllCaughtUp] = useState(false);
+  const containerRef = useRef();
   const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
 
   useEffect(() => {
@@ -28,32 +30,21 @@ const Feed = () => {
         const newData = data.data.data.filter(
           (newPost) => !prevPosts.some((post) => post._id === newPost._id)
         );
-        // Sort new data based on createdAt timestamp in descending order
-        const sortedData = [...newData, ...prevPosts].sort((a, b) => {
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        });
+        const sortedData = [...newData, ...prevPosts].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
         return sortedData;
       });
-
-      if (data.data.data.length === 0) {
-        setAllCaughtUp(true);
-      }
     }
   }, [data, isLoading]);
 
   useEffect(() => {
     const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollTop =
-        window.scrollY ||
-        window.pageYOffset ||
-        document.body.scrollTop +
-          ((document.documentElement && document.documentElement.scrollTop) ||
-            0);
-
+      console.log('scrolled');
+      const { scrollTop, scrollHeight, clientHeight } =
+        document.documentElement;
       if (
-        windowHeight + scrollTop >= documentHeight &&
+        scrollTop + clientHeight >= scrollHeight &&
         !isFetching &&
         posts.length < data?.data?.total
       ) {
@@ -68,12 +59,6 @@ const Feed = () => {
     };
   }, [isFetching, data, posts]);
 
-  function changeDateFormat(dateString) {
-    const dateObject = new Date(dateString);
-    const formattedDate = dateObject.toLocaleString();
-    return formattedDate;
-  }
-
   if (isLoading || (isFetching && page === 1)) {
     return (
       <div className="outlet-box card">
@@ -81,20 +66,16 @@ const Feed = () => {
       </div>
     );
   }
-
   if (!posts || posts.length === 0) {
     return <div className="outlet-box card">No post to show</div>;
   }
 
-  return (
-    <div className="outlet-box card">
-      <ScrollToTop smooth />
-      {posts.map((post) => (
-        <Card
-          key={post._id}
-          sx={{ maxWidth: 445, minWidth: 300 }}
-          className="card-box"
-        >
+  const Row = ({ index, style }) => {
+    const post = posts[index];
+
+    return (
+      <div style={style}>
+        <Card sx={{ maxWidth: 445, minWidth: 300 }} className="card-box">
           <CardHeader
             avatar={
               <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src="" />
@@ -104,13 +85,27 @@ const Feed = () => {
           />
           <PostImage postIdProp={post._id} />
           <CardContent>
-            <CardActions disableSpacing></CardActions>
             <Typography variant="body2" color="text.secondary">
               {post?.description}
             </Typography>
           </CardContent>
         </Card>
-      ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="sub-container">
+      <VariableSizeList
+        className="list"
+        height={window.innerHeight}
+        itemCount={posts.length}
+        itemSize={(number) => 400}
+        width="100%"
+        ref={containerRef}
+      >
+        {Row}
+      </VariableSizeList>
       {!isFetching && posts.length === data?.data?.total && (
         <Typography variant="body2" color="text.secondary" className="no-more">
           You are all caught up!
