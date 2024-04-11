@@ -104,7 +104,7 @@ const Feed = () => {
         width="100%"
         ref={containerRef}
       >
-        {Row}
+        {({ index, style }) => <Row index={index} style={style} />}
       </VariableSizeList>
       {!isFetching && posts.length === data?.data?.total && (
         <Typography variant="body2" color="text.secondary" className="no-more">
