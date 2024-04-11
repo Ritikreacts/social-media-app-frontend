@@ -28,7 +28,11 @@ const Feed = () => {
         const newData = data.data.data.filter(
           (newPost) => !prevPosts.some((post) => post._id === newPost._id)
         );
-        return [...newData, ...prevPosts];
+        // Sort new data based on createdAt timestamp in descending order
+        const sortedData = [...newData, ...prevPosts].sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        return sortedData;
       });
 
       if (data.data.data.length === 0) {
@@ -69,6 +73,7 @@ const Feed = () => {
     const formattedDate = dateObject.toLocaleString();
     return formattedDate;
   }
+
   if (isLoading || (isFetching && page === 1)) {
     return (
       <div className="outlet-box card">
