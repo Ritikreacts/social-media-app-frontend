@@ -11,16 +11,23 @@ import {
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';
+import { useSearchParams } from 'react-router-dom';
 import ScrollToTop from 'react-scroll-to-top';
+import ReactSearchBox from 'react-search-box';
 
-import { useFetchAllPostsQuery } from '../../api/action-apis/postApi';
+import {
+  useFetchAllPostsQuery,
+  useGetPostsQuery,
+} from '../../api/action-apis/postApi';
 import PostImage from '../../component/PostImage';
 
 const Feed = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [, setAllCaughtUp] = useState(false);
   const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
+  const { data: matchedData } = useGetPostsQuery(searchParams);
 
   useEffect(() => {
     if (!isLoading && data) {
@@ -28,7 +35,6 @@ const Feed = () => {
         const newData = data.data.data.filter(
           (newPost) => !prevPosts.some((post) => post._id === newPost._id)
         );
-        // Sort new data based on createdAt timestamp in descending order
         const sortedData = [...newData, ...prevPosts].sort((a, b) => {
           return new Date(b.createdAt) - new Date(a.createdAt);
         });
@@ -74,6 +80,15 @@ const Feed = () => {
     return formattedDate;
   }
 
+  const handleSearch = (e) => {
+    setSearchParams(`search=${e}`);
+    console.log(matchedData);
+    console.log(data);
+    if (e.length === 0) {
+      setSearchParams('');
+    }
+  };
+
   if (isLoading || (isFetching && page === 1)) {
     return (
       <div className="outlet-box card">
@@ -88,6 +103,17 @@ const Feed = () => {
 
   return (
     <div className="outlet-box card">
+      <div className="search-box">
+        <ReactSearchBox
+          className="search"
+          placeholder={'Search posts'}
+          onChange={(e) => {
+            handleSearch(e);
+          }}
+          // data={thi}
+          // callback={(record) => console.log(record)}
+        />
+      </div>
       <ScrollToTop smooth />
       {posts.map((post) => (
         <Card

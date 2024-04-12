@@ -127,6 +127,20 @@ hr {
   top: 30% !important;
 }
 
+.search-box {
+  position: fixed !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.card-box {
+  margin-top: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.11);
+  border-radius: 10px !important;
+}
+
 @media screen and (max-width: 600px) {
   .outlet-box {
     left: 10%;

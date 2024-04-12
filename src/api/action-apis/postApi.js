@@ -29,6 +29,16 @@ const postApi = rootApi.injectEndpoints({
         socket?.removeEventListener();
       },
     }),
+    getPosts: builder.query({
+      query: (searchInput) => {
+        return {
+          url: `/posts/get-feed-posts?search=${searchInput}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Post'],
+    }),
+
     createPost: builder.mutation({
       query: (data) => {
         const formData = new FormData();
@@ -59,4 +69,5 @@ export const {
   useFetchAllPostsQuery,
   useCreatePostMutation,
   useFetchPostImgQuery,
+  useGetPostsQuery,
 } = postApi;
