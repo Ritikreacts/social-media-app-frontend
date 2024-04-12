@@ -30,9 +30,20 @@ const postApi = rootApi.injectEndpoints({
       },
     }),
     getPosts: builder.query({
-      query: (searchInput) => {
+      query: (searchParams) => {
+        console.log(searchParams, 'api me');
         return {
-          url: `/posts/get-feed-posts?search=${searchInput}`,
+          url: `/posts/get-feed-posts?search=${searchParams}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Post'],
+    }),
+    getYourPosts: builder.query({
+      query: (isChecked) => {
+        console.log(isChecked, 'api me');
+        return {
+          url: `/posts/get-feed-posts?isMyPostsOnly=${isChecked}`,
           method: 'GET',
         };
       },
@@ -70,4 +81,5 @@ export const {
   useCreatePostMutation,
   useFetchPostImgQuery,
   useGetPostsQuery,
+  useGetYourPostsQuery,
 } = postApi;
