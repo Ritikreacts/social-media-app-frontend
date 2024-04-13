@@ -43,7 +43,16 @@ const postApi = rootApi.injectEndpoints({
       query: (isChecked) => {
         console.log(isChecked, 'api me');
         return {
-          url: `/posts/get-feed-posts?isMyPostsOnly=${isChecked}`,
+          url: `/posts/get-feed-posts?isMyPostsOnly=${isChecked ? true : false}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Post'],
+    }),
+    getPrivatePosts: builder.query({
+      query: (isPrivate) => {
+        return {
+          url: `/posts/get-feed-posts?isPrivate=${isPrivate ? true : false}`,
           method: 'GET',
         };
       },
@@ -82,4 +91,5 @@ export const {
   useFetchPostImgQuery,
   useGetPostsQuery,
   useGetYourPostsQuery,
+  useGetPrivatePostsQuery,
 } = postApi;

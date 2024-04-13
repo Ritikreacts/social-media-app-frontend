@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { yupResolver } from '@hookform/resolvers/yup';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -11,10 +12,19 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import * as yup from 'yup';
 
 import { useSignInMutation } from '../../api/action-apis/authApi';
 import { useSnackbarUtils } from '../../component/Notify';
 import AuthContext from '../../context/auth/AuthContext';
+
+const schema = yup.object().shape({
+  email: yup.string().email('Email is invalid').required('Email is required'),
+  password: yup
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
+});
 
 export default function SignIn() {
   const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
@@ -25,8 +35,10 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm();
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   const onSubmit = async (dataToSend) => {
     try {
@@ -42,6 +54,7 @@ export default function SignIn() {
       console.log(error);
     }
   };
+
   return (
     <>
       <Container component="main" maxWidth="xs" className="phone-box">
@@ -72,16 +85,9 @@ export default function SignIn() {
           >
             <TextField
               className="textfield"
-              {...register('email', {
-                required: 'Email is required',
-                validate: (value) => {
-                  if (!value.match(/^\S+@\S+\.\S+$/)) {
-                    return 'Email is invalid';
-                  } else {
-                    return true;
-                  }
-                },
-              })}
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
               margin="normal"
               fullWidth
               id="email"
@@ -91,15 +97,11 @@ export default function SignIn() {
               autoComplete="email"
               autoFocus
             />
-            <div></div>
-            {errors.email && (
-              <div className="error">{errors.email.message}</div>
-            )}
             <TextField
               className="textfield"
-              {...register('password', {
-                required: 'Password is required',
-              })}
+              {...register('password')}
+              error={!!errors.password}
+              helperText={errors.password?.message}
               margin="normal"
               fullWidth
               name="password"
@@ -108,20 +110,15 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
             />
-            <div></div>
-            {errors.password && (
-              <div className="error">{errors.password.message}</div>
-            )}
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isSubmitting}
+              disabled={isLoading}
             >
               {isLoading ? 'Loading...' : 'Sign In'}
             </Button>
-            {errors.root && <div className="error">{errors.root.message}</div>}
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2"></Link>

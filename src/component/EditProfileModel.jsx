@@ -1,8 +1,10 @@
 import React from 'react';
 
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Modal, TextField, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
 
 import { useSnackbarUtils } from './Notify';
 import {
@@ -14,15 +16,32 @@ const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
   const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
 
   const [updateUser] = useUpdateUserMutation();
-  const { data, isLoading, isSuccess } = useFetchUserQuery();
+  const { data, isLoading } = useFetchUserQuery();
   const activeUserDetails = !isLoading && data?.data;
+
+  const schema = Yup.object().shape({
+    firstname: Yup.string()
+      .required('First name is required')
+      .min(2, 'First name must contain minimum 2 characters'),
+    lastname: Yup.string()
+      .required('Last name is required')
+      .min(2, 'Last name must contain minimum 2 characters'),
+    username: Yup.string()
+      .required('Username is required')
+      .matches(
+        /^([a-zA-Z0-9 _]+)$/,
+        'Username should not contain special characters'
+      )
+      .min(6, 'Username must contain 6 or more characters'),
+    email: Yup.string().required('Email is required').email('Email is invalid'),
+  });
 
   const {
     register,
-    clearErrors,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
+    resolver: yupResolver(schema),
     defaultValues: {
       firstname: activeUserDetails?.firstname,
       lastname: activeUserDetails?.lastname,
@@ -32,23 +51,15 @@ const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
   });
 
   const handleCancelClick = () => {
-    clearErrors();
     setIsModalOpenProp(false);
   };
 
   const onSubmit = async (data) => {
-    const updatedData = {
-      ...data,
-      isPrivate: true,
-    };
     try {
-      const response = await updateUser(updatedData);
+      const response = await updateUser(data);
       if (response?.data) {
         showSuccessSnackbar('Profile updated successfully!');
-
-        if (isSuccess) {
-          setIsModalOpenProp(false);
-        }
+        setIsModalOpenProp(false);
       } else {
         showErrorSnackbar(response.error.data.message);
       }
@@ -79,91 +90,51 @@ const EditProfileModel = ({ isModalOpenProp, setIsModalOpenProp }) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <TextField
               className="textfield"
-              {...register('firstname', {
-                required: 'First name is required',
-                minLength: {
-                  value: 2,
-                  message: 'First name must contain minimum 2 characters',
-                },
-              })}
+              {...register('firstname')}
               label="First Name"
               fullWidth
               margin="normal"
-              defaultValue={activeUserDetails?.firstname}
+              error={!!errors.firstname}
+              helperText={errors.firstname?.message}
             />
-            {errors.firstname && (
-              <div className="error">{errors.firstname.message}</div>
-            )}
             <TextField
-              {...register('lastname', {
-                required: 'Last name is required',
-                minLength: {
-                  value: 2,
-                  message: 'Last name must contain minimum 2 characters',
-                },
-              })}
+              {...register('lastname')}
               label="Last Name"
               fullWidth
               margin="normal"
-              defaultValue={activeUserDetails?.lastname}
+              error={!!errors.lastname}
+              helperText={errors.lastname?.message}
             />
-            {errors.lastname && (
-              <div className="error">{errors.lastname.message}</div>
-            )}
             <TextField
-              {...register('username', {
-                required: 'Username is required',
-                validate: (value) => {
-                  if (!value.match(/^([a-zA-Z0-9 _]+)$/)) {
-                    return 'Username should not contain special characters';
-                  } else if (value.length < 6) {
-                    return 'Username must contain 6 or more characters';
-                  } else {
-                    return true;
-                  }
-                },
-              })}
+              {...register('username')}
               label="Username"
               fullWidth
               margin="normal"
-              defaultValue={activeUserDetails?.username}
+              error={!!errors.username}
+              helperText={errors.username?.message}
             />
-            {errors.username && (
-              <div className="error">{errors.username.message}</div>
-            )}
             <TextField
-              {...register('email', {
-                required: 'Email is required',
-                validate: (value) => {
-                  if (!value.match(/^\S+@\S+\.\S+$/)) {
-                    return 'Email is invalid';
-                  } else {
-                    return true;
-                  }
-                },
-              })}
-              label="email"
+              {...register('email')}
+              label="Email"
               fullWidth
               margin="normal"
-              defaultValue={activeUserDetails?.email}
+              error={!!errors.email}
+              helperText={errors.email?.message}
             />
-            {errors.email && (
-              <div className="error">{errors.email.message}</div>
-            )}
             <div style={{ textAlign: 'center', marginTop: 20 }}>
               <Button
                 type="submit"
                 variant="contained"
-                style={{ marginRight: 10 }}
                 className="color-green"
+                style={{ marginRight: 10 }}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Updating....' : 'Update'}
               </Button>
               <Button
                 variant="contained"
-                onClick={handleCancelClick}
                 className="color-red"
+                onClick={handleCancelClick}
               >
                 Cancel
               </Button>

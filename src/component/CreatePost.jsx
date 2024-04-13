@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Box,
   Modal,
@@ -7,10 +8,14 @@ import {
   TextField,
   Button,
   Avatar,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
 
 import { useSnackbarUtils } from './Notify';
 import { useCreatePostMutation } from '../api/action-apis/postApi';
@@ -29,17 +34,24 @@ const style = {
   cursor: 'pointer',
 };
 
+const schema = Yup.object().shape({
+  title: Yup.string().required('Title is required'),
+  description: Yup.string().required('Description is required'),
+});
+
 const CreatePost = ({ openProfile, setOpenProfile }) => {
   const { showSuccessSnackbar, showErrorSnackbar } = useSnackbarUtils();
-
   const navigate = useNavigate();
   const [createPost, { isLoading }] = useCreatePostMutation();
   const [image, setImage] = useState('');
+  const [privacy, setPrivacy] = useState('public');
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
   const fileInputRef = useRef();
 
   const handleClose = () => setOpenProfile(false);
@@ -47,16 +59,17 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
   const handleImageClick = () => {
     fileInputRef.current.click();
   };
-  function handleImageChange(e) {
-    const file = e.target.files[0];
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
     setImage(file);
-  }
+  };
+
   const onSubmit = async (postData) => {
     const postDetails = {
       ...postData,
       image,
-      isPrivate: false,
+      isPrivate: privacy === 'private',
     };
 
     try {
@@ -64,7 +77,6 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
       if (response?.data) {
         setOpenProfile(false);
         showSuccessSnackbar('New post added!');
-
         navigate('/home/feed');
       } else {
         showErrorSnackbar(response.error.data.message);
@@ -72,6 +84,10 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handlePrivacyChange = (e) => {
+    setPrivacy(e.target.value);
   };
 
   return (
@@ -88,24 +104,14 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
           </Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
             <input
-              {...register('image', {
-                validate: () => {
-                  if (!image) {
-                    return 'Image is required to create post';
-                  } else {
-                    return true;
-                  }
-                },
-              })}
               type="file"
               accept="image/*"
               style={{ display: 'none' }}
               ref={fileInputRef}
-              onChange={(e) => handleImageChange(e)}
+              onChange={handleImageChange}
             />
             <div onClick={handleImageClick} style={{ marginBottom: 20 }}>
               <Avatar
-                className="avatar-upload"
                 variant="rounded"
                 src={image ? URL.createObjectURL(image) : ''}
                 style={{
@@ -122,44 +128,53 @@ const CreatePost = ({ openProfile, setOpenProfile }) => {
               )}
             </div>
             <TextField
-              {...register('title', {
-                required: 'Title is required',
-              })}
+              {...register('title')}
               label="Title"
               fullWidth
               margin="normal"
+              error={!!errors.title}
+              helperText={errors.title?.message}
             />
-            {errors.title && (
-              <div className="error">{errors.title.message}</div>
-            )}
             <TextField
-              {...register('description', {
-                required: 'Description is required',
-              })}
+              {...register('description')}
               label="Description"
               fullWidth
               margin="normal"
               multiline
               rows={2}
+              error={!!errors.description}
+              helperText={errors.description?.message}
             />
-            {errors.description && (
-              <div className="error">{errors.description.message}</div>
-            )}
+            <RadioGroup
+              name="privacy"
+              value={privacy}
+              onChange={handlePrivacyChange}
+              row
+            >
+              <FormControlLabel
+                value="private"
+                control={<Radio />}
+                label="Private"
+              />
+              <FormControlLabel
+                value="public"
+                control={<Radio />}
+                label="Public"
+              />
+            </RadioGroup>
             <Button
               type="submit"
               variant="contained"
-              color="primary"
-              style={{ marginRight: 10, marginTop: 10 }}
               className="color-green"
+              style={{ marginRight: 10, marginTop: 10 }}
               disabled={isLoading}
             >
               {isLoading ? 'Adding...' : 'Add post'}
             </Button>
             <Button
               variant="contained"
-              color="secondary"
-              onClick={handleClose}
               className="color-red"
+              onClick={handleClose}
               style={{ marginTop: 10 }}
               disabled={isLoading}
             >

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 
 import {
+  CircularProgress,
+  Typography,
   Avatar,
   Card,
   CardActions,
   CardContent,
   CardHeader,
-  CircularProgress,
-  Typography,
 } from '@mui/material';
 import { red } from '@mui/material/colors';
 import PropTypes from 'prop-types';
@@ -18,6 +18,7 @@ import ReactSearchBox from 'react-search-box';
 import {
   useFetchAllPostsQuery,
   useGetPostsQuery,
+  useGetPrivatePostsQuery,
   useGetYourPostsQuery,
 } from '../../api/action-apis/postApi';
 import PostImage from '../../component/PostImage';
@@ -28,6 +29,8 @@ const Feed = () => {
   const [page, setPage] = useState(1);
   const [, setAllCaughtUp] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [myPostsOnly, setMyPostsOnly] = useState(false);
+  const [isPostPrivate, setIsPostPrivate] = useState(false);
   const {
     data: allPostData,
     isLoading: allPostsLoading,
@@ -37,10 +40,14 @@ const Feed = () => {
     searchQuery,
     { refetchOnMountOrArgChange: true }
   );
-  const { data: myPostsOnly, isLoading: myPostsLoading } = useGetYourPostsQuery(
-    { refetchOnMountOrArgChange: true }
-  );
-
+  const { data: myPostsData } = useGetYourPostsQuery({
+    myPostsOnly,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: privatePosts } = useGetPrivatePostsQuery({
+    isPostPrivate,
+    refetchOnMountOrArgChange: true,
+  });
   useEffect(() => {
     if (!allPostsLoading && allPostData) {
       setPosts((prevPosts) => {
@@ -101,6 +108,18 @@ const Feed = () => {
     }
   };
 
+  const handleMyPostsOnly = (e) => {
+    setMyPostsOnly(e.target.checked);
+    console.log(myPostsOnly);
+    const filterString = `isMyPostOnly=${true}`;
+    setSearchParams(e.target.checked ? filterString : '');
+  };
+  const handlePrivatePosts = (e) => {
+    setIsPostPrivate(e.target.checked);
+    const filterString = `isPrivate=${true}`;
+    setSearchParams(e.target.checked ? filterString : '');
+  };
+
   if (allPostsLoading || searchLoading || (allPostsFetching && page === 1)) {
     return (
       <div className="outlet-box card">
@@ -113,16 +132,22 @@ const Feed = () => {
     return <div className="outlet-box card">No post to show</div>;
   }
 
-  const displayPosts = searchQuery ? matchedData.data.data : posts;
-  console.log({ displayPosts });
-
+  let displayPosts;
+  if (myPostsOnly) {
+    displayPosts = myPostsData.data.data;
+  } else if (searchQuery) {
+    displayPosts = matchedData.data.data;
+  } else if (isPostPrivate) {
+    displayPosts = privatePosts.data.data;
+  } else {
+    displayPosts = posts;
+  }
   return (
     <div className="outlet-box card">
       <div className="search-box">
         <div className="checkbox pointer">
           <label htmlFor="check">My posts only?</label>
-
-          <input type="checkbox" id="check" />
+          <input type="checkbox" id="check" onChange={handleMyPostsOnly} />
         </div>
         <ReactSearchBox
           className="search pointer"
@@ -131,7 +156,7 @@ const Feed = () => {
         />
         <div className="checkbox pointer">
           <label htmlFor="privacy">Private posts only?</label>
-          <input type="checkbox" id="privacy" />
+          <input type="checkbox" id="privacy" onChange={handlePrivatePosts} />
         </div>
       </div>
       <ScrollToTop smooth />
