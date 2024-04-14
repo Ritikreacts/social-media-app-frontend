@@ -1,35 +1,72 @@
-/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 
 import {
+  CircularProgress,
+  Typography,
   Avatar,
   Card,
   CardActions,
   CardContent,
   CardHeader,
-  CircularProgress,
-  Typography,
 } from '@mui/material';
 import { red } from '@mui/material/colors';
+import debounce from 'lodash.debounce';
 import PropTypes from 'prop-types';
+import { useSearchParams } from 'react-router-dom';
 import ScrollToTop from 'react-scroll-to-top';
-import { FixedSizeList as List } from 'react-window';
+import ReactSearchBox from 'react-search-box';
 
-import { useFetchAllPostsQuery } from '../../api/action-apis/postApi';
+import {
+  useFetchAllPostsQuery,
+  useGetPostsQuery,
+  useGetPrivatePostsQuery,
+  useGetYourPostsQuery,
+} from '../../api/action-apis/postApi';
 import PostImage from '../../component/PostImage';
 
 const Feed = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [, setAllCaughtUp] = useState(false);
-  const { data, isLoading, isFetching } = useFetchAllPostsQuery(page);
-
-  const posts = data?.data?.data || [];
+  const [searchQuery, setSearchQuery] = useState('');
+  const [myPostsOnly, setMyPostsOnly] = useState(false);
+  const [isPostPrivate, setIsPostPrivate] = useState(false);
+  const {
+    data: allPostData,
+    isLoading: allPostsLoading,
+    isFetching: allPostsFetching,
+  } = useFetchAllPostsQuery(page, { refetchOnMountOrArgChange: true });
+  const { data: matchedData, isLoading: searchLoading } = useGetPostsQuery(
+    searchQuery,
+    { refetchOnMountOrArgChange: true }
+  );
+  const { data: myPostsData } = useGetYourPostsQuery({
+    myPostsOnly,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: privatePosts } = useGetPrivatePostsQuery({
+    isPostPrivate,
+    refetchOnMountOrArgChange: true,
+  });
 
   useEffect(() => {
-    if (data?.data?.data?.length === 0) {
-      setAllCaughtUp(true);
+    if (!allPostsLoading && allPostData) {
+      setPosts((prevPosts) => {
+        const newData = allPostData.data.data.filter(
+          (newPost) => !prevPosts.some((post) => post._id === newPost._id)
+        );
+        const sortedData = [...newData, ...prevPosts].sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        return sortedData;
+      });
+
+      if (allPostData.data.data.length === 0) {
+        setAllCaughtUp(true);
+      }
     }
-  }, [data]);
+  }, [allPostData, allPostsLoading]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,15 +78,11 @@ const Feed = () => {
         document.body.scrollTop +
           ((document.documentElement && document.documentElement.scrollTop) ||
             0);
-      const distanceFromBottom = documentHeight - scrollTop - windowHeight;
-
-      // Adjust the threshold value as needed
-      const threshold = 200;
 
       if (
-        distanceFromBottom < threshold &&
-        !isFetching &&
-        posts.length < data?.data?.total
+        windowHeight + scrollTop >= documentHeight &&
+        !allPostsFetching &&
+        posts.length < allPostData?.data?.total
       ) {
         setPage((prevPage) => prevPage + 1);
       }
@@ -60,7 +93,7 @@ const Feed = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isFetching, data, posts.length]);
+  }, [allPostsFetching, allPostData, posts]);
 
   function changeDateFormat(dateString) {
     const dateObject = new Date(dateString);
@@ -68,43 +101,40 @@ const Feed = () => {
     return formattedDate;
   }
 
-  const Row = ({ index, style }) => {
-    const post = posts[index];
-
-    if (!post) {
-      // Post is being loaded, render a placeholder
-      return <div style={style}>Loading...</div>;
+  const handleSearch = debounce(async (e) => {
+    setSearchQuery(e);
+    const params = new URLSearchParams(searchParams);
+    if (e) {
+      params.set('search', e);
+    } else {
+      params.delete('search');
     }
+    setSearchParams(params.toString());
+  }, 500);
 
-    return (
-      <div style={style}>
-        <Card
-          style={{
-            maxWidth: 445,
-            minWidth: 300,
-            marginBottom: 10, // Adjust as needed
-          }}
-        >
-          <CardHeader
-            avatar={
-              <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src="" />
-            }
-            title={post.userData?.username || post.userId?.username}
-            subheader={changeDateFormat(post.createdAt)}
-          />
-          <PostImage postIdProp={post._id} />
-          <CardContent>
-            <CardActions disableSpacing></CardActions>
-            <Typography variant="body2" color="text.secondary">
-              {post?.description}
-            </Typography>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  const handleMyPostsOnly = (e) => {
+    setMyPostsOnly(e.target.checked);
+    const params = new URLSearchParams(searchParams);
+    if (e.target.checked) {
+      params.set('isMyPostOnly', true);
+    } else {
+      params.delete('isMyPostOnly');
+    }
+    setSearchParams(params.toString());
   };
 
-  if (isLoading || (isFetching && page === 1)) {
+  const handlePrivatePosts = (e) => {
+    setIsPostPrivate(e.target.checked);
+    const params = new URLSearchParams(searchParams);
+    if (e.target.checked) {
+      params.set('isPrivate', true);
+    } else {
+      params.delete('isPrivate');
+    }
+    setSearchParams(params.toString());
+  };
+
+  if (allPostsLoading || searchLoading || (allPostsFetching && page === 1)) {
     return (
       <div className="outlet-box card">
         <CircularProgress />
@@ -116,24 +146,93 @@ const Feed = () => {
     return <div className="outlet-box card">No post to show</div>;
   }
 
+  let displayPosts;
+  if (myPostsOnly && isPostPrivate && searchQuery) {
+    displayPosts = matchedData.data.data.filter(
+      (post) =>
+        post.userData?.id === myPostsData.data.id && post.isPrivate === true
+    );
+  } else if (myPostsOnly && isPostPrivate) {
+    displayPosts = privatePosts.data.data.filter(
+      (post) => post.userData?.id === myPostsData.data.id
+    );
+  } else if (myPostsOnly && searchQuery) {
+    displayPosts = matchedData.data.data.filter(
+      (post) => post.userData?.id === myPostsData.data.id
+    );
+  } else if (isPostPrivate && searchQuery) {
+    displayPosts = matchedData.data.data.filter(
+      (post) => post.isPrivate === true
+    );
+  } else if (myPostsOnly) {
+    displayPosts = myPostsData.data.data;
+  } else if (isPostPrivate) {
+    displayPosts = privatePosts.data.data;
+  } else if (searchQuery) {
+    displayPosts = matchedData.data.data;
+  } else {
+    displayPosts = posts;
+  }
+
   return (
     <div className="outlet-box card">
+      <div className="search-box">
+        <div className="checkbox pointer">
+          <label htmlFor="check">My posts only?</label>
+          <input type="checkbox" id="check" onChange={handleMyPostsOnly} />
+        </div>
+        <ReactSearchBox
+          className="search pointer"
+          placeholder={'Search posts'}
+          onChange={(e) => handleSearch(e)}
+        />
+        <div className="checkbox pointer">
+          <label htmlFor="privacy">Private posts only?</label>
+          <input type="checkbox" id="privacy" onChange={handlePrivatePosts} />
+        </div>
+      </div>
       <ScrollToTop smooth />
-      <List
-        height={window.innerHeight}
-        itemCount={posts.length}
-        itemSize={300} // Adjust as needed
-        width="100%"
-      >
-        {Row}
-      </List>
-      {!isFetching && posts.length === data?.data?.total && (
+      {displayPosts.length > 0 ? (
+        displayPosts.map((post) => (
+          <Card
+            key={post._id}
+            sx={{ maxWidth: 445, minWidth: 300 }}
+            className="card-box"
+          >
+            <CardHeader
+              avatar={
+                <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe" src="" />
+              }
+              title={post.userData?.username || post.userId?.username}
+              subheader={changeDateFormat(post.createdAt)}
+            />
+            <PostImage postIdProp={post._id} />
+            <CardContent>
+              <CardActions disableSpacing></CardActions>
+              <Typography variant="body2" color="text.secondary">
+                Title - {post?.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Caption - {post?.description}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))
+      ) : (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          className="outlet-box no-post"
+        >
+          No match found
+        </Typography>
+      )}
+      {!allPostsFetching && posts.length === allPostData?.data?.total && (
         <Typography variant="body2" color="text.secondary" className="no-more">
           You are all caught up!
         </Typography>
       )}
-
-      {isFetching && <CircularProgress />}
+      {allPostsFetching && <CircularProgress />}
     </div>
   );
 };

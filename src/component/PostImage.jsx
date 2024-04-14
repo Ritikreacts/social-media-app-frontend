@@ -17,14 +17,16 @@ const PostImage = ({ postIdProp }) => {
   }
   return (
     <>
-      <CardMedia
-        className="card-image"
-        component="img"
-        height="194"
-        style={{ objectFit: 'contain' }}
-        src={imageData ? imageData.imageData : null}
-        alt="user-image"
-      />
+      {imageData && (
+        <CardMedia
+          className="card-image"
+          component="img"
+          height="194"
+          style={{ objectFit: 'contain' }}
+          src={imageData.imageData}
+          alt="user-image"
+        />
+      )}
     </>
   );
 };

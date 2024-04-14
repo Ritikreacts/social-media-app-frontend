@@ -29,6 +29,36 @@ const postApi = rootApi.injectEndpoints({
         socket?.removeEventListener();
       },
     }),
+    getPosts: builder.query({
+      query: (searchParams) => {
+        console.log(searchParams, 'api me');
+        return {
+          url: `/posts/get-feed-posts?search=${searchParams}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Post'],
+    }),
+    getYourPosts: builder.query({
+      query: (isChecked) => {
+        console.log(isChecked, 'api me');
+        return {
+          url: `/posts/get-feed-posts?isMyPostsOnly=${isChecked ? true : false}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Post'],
+    }),
+    getPrivatePosts: builder.query({
+      query: (isPrivate) => {
+        return {
+          url: `/posts/get-feed-posts?isPrivate=${isPrivate ? true : false}`,
+          method: 'GET',
+        };
+      },
+      providesTags: ['Post'],
+    }),
+
     createPost: builder.mutation({
       query: (data) => {
         const formData = new FormData();
@@ -59,4 +89,7 @@ export const {
   useFetchAllPostsQuery,
   useCreatePostMutation,
   useFetchPostImgQuery,
+  useGetPostsQuery,
+  useGetYourPostsQuery,
+  useGetPrivatePostsQuery,
 } = postApi;
