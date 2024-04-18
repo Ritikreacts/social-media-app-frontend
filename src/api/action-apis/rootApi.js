@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getCookie } from '../../services/cookieManager';
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:5000/',
+  baseUrl: 'https://social-media-app-backend-rdyi.onrender.com',
   prepareHeaders: (headers) => {
     const token = getCookie();
     if (token) {

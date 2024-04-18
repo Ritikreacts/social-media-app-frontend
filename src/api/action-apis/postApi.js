@@ -31,7 +31,6 @@ const postApi = rootApi.injectEndpoints({
     }),
     getPosts: builder.query({
       query: (searchParams) => {
-        console.log(searchParams, 'api me');
         return {
           url: `/posts/get-feed-posts?search=${searchParams}`,
           method: 'GET',
@@ -41,7 +40,6 @@ const postApi = rootApi.injectEndpoints({
     }),
     getYourPosts: builder.query({
       query: (isChecked) => {
-        console.log(isChecked, 'api me');
         return {
           url: `/posts/get-feed-posts?isMyPostsOnly=${isChecked ? true : false}`,
           method: 'GET',

@@ -5,7 +5,6 @@ import {
   Typography,
   Avatar,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
 } from '@mui/material';
@@ -206,9 +205,8 @@ const Feed = () => {
               title={post.userData?.username || post.userId?.username}
               subheader={changeDateFormat(post.createdAt)}
             />
-            <PostImage postIdProp={post._id} />
+            {post.filePath && <PostImage postIdProp={post._id} />}
             <CardContent>
-              <CardActions disableSpacing></CardActions>
               <Typography variant="body2" color="text.secondary">
                 Title - {post?.title}
               </Typography>

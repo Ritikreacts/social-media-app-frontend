@@ -6,7 +6,7 @@ export let socket = null;
 
 export function connectToSocket(accessToken) {
   if (!socket) {
-    socket = io('http://localhost:5000/', {
+    socket = io('https://social-media-app-backend-rdyi.onrender.com/', {
       extraHeaders: {
         token: accessToken ? accessToken : getCookie(),
       },
